@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리뷰 연결 테스트</title>
+<style>
+  :root { --bg:#f6f7f8; --card:#fff; --text:#1d2329; --sub:#5f6b76; --green:#1f9d55; --blue:#1a73e8; --line:#e3e7eb; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  .wrap { max-width:460px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:20px; margin:0 0 6px; }
+  .env { font-size:13px; color:var(--sub); background:#fff; border:1px solid var(--line);
+         border-radius:10px; padding:10px 12px; margin:12px 0 20px; line-height:1.6; word-break:break-all; }
+  h2 { font-size:15px; margin:24px 0 8px; }
+  a.btn { display:block; padding:14px 14px; border-radius:12px; font-size:15px; font-weight:700;
+          text-decoration:none; margin-top:8px; background:#fff; color:var(--text);
+          border:1px solid var(--line); }
+  a.btn small { display:block; font-weight:400; color:var(--sub); font-size:12px; margin-top:4px; }
+  .tag { display:inline-block; min-width:28px; text-align:center; background:var(--blue); color:#fff;
+         border-radius:6px; padding:1px 6px; margin-right:8px; font-size:13px; }
+  .note { font-size:13px; color:var(--sub); line-height:1.6; margin-top:20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>리뷰 연결 테스트</h1>
+  <div class="env" id="env"></div>
+
+  <div id="android">
+    <h2>안드로이드용</h2>
+    <a class="btn" id="a1"><span class="tag">A</span>지도 앱 + 공식 리뷰 링크<small>지금 index.html이 쓰는 방식</small></a>
+    <a class="btn" id="a2"><span class="tag">B</span>지도 앱 + 리뷰 작성 주소<small>search.google.com 리뷰창 주소를 지도 앱으로</small></a>
+    <a class="btn" id="a3"><span class="tag">C</span>지도 앱 + 하울솔루션 장소 열기<small>리뷰창 대신 가게 화면이 열리면 정상</small></a>
+    <a class="btn" id="a4"><span class="tag">D</span>구글 앱 + 리뷰 작성 주소<small>G 로고 구글 앱으로 리뷰창 열기</small></a>
+    <a class="btn" id="a5"><span class="tag">E</span>구글 앱 + '용산 하울솔루션' 검색<small>구글 앱 검색 결과가 열리면 정상</small></a>
+  </div>
+
+  <div id="ios">
+    <h2>아이폰용</h2>
+    <a class="btn" id="i1"><span class="tag">F</span>구글 지도 앱 열기<small>하울솔루션 검색 상태로 지도 앱 열기</small></a>
+    <a class="btn" id="i2"><span class="tag">G</span>구글 앱 열기<small>'용산 하울솔루션' 검색 상태로 구글 앱 열기</small></a>
+    <a class="btn" id="i3"><span class="tag">H</span>공식 리뷰 링크 그냥 누르기<small>지도 앱이 알아서 받아 주는지 확인</small></a>
+  </div>
+
+  <div class="note">
+    각 버튼을 눌러 보고 <b>어떤 앱의 어떤 화면</b>이 열렸는지 알려 주세요.<br>
+    예) A: 크롬 리뷰창 / B: 플레이스토어로 감 / C: 지도 앱 가게 화면<br>
+    한 번 누를 때마다 뒤로가기로 이 페이지로 돌아오면 돼요.
+  </div>
+</div>
+
+<script>
+(function () {
+  var PLACE_ID = "ChIJFb9FxvmjfDURN4tR-GSERg4";
+  var GPAGE = "https://g.page/r/CTeLUfhkhEYOEAI/review";
+  var WRITE = "https://search.google.com/local/writereview?placeid=" + PLACE_ID;
+  var PLACE = "https://www.google.com/maps/search/?api=1&query=" +
+              encodeURIComponent("하울솔루션") + "&query_place_id=" + PLACE_ID;
+  var SEARCH = "https://www.google.com/search?q=" + encodeURIComponent("용산 하울솔루션");
+
+  var MAPS = "com.google.android.apps.maps";
+  var GAPP = "com.google.android.googlequicksearchbox";
+
+  // 일부러 '실패하면 다른 데로 넘기는 안전장치'를 빼서, 어떤 방법이 진짜 되는지 보이게 함
+  function intent(url, pkg) {
+    var u = new URL(url);
+    return "intent://" + u.host + u.pathname + u.search +
+           "#Intent;scheme=https;action=android.intent.action.VIEW;package=" + pkg + ";end";
+  }
+
+  var ua = navigator.userAgent || "";
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isKakao = /KAKAOTALK/i.test(ua);
+
+  document.getElementById("env").innerHTML =
+    "기기: <b>" + (isAndroid ? "안드로이드" : isIOS ? "아이폰" : "기타(PC 등)") + "</b>" +
+    (isKakao ? " · <b style='color:#d93025'>지금 카톡 브라우저 안이에요 — 폰 기본 브라우저로 열어서 테스트해 주세요</b>" : "") +
+    "<br>" + ua;
+
+  document.getElementById("a1").href = intent(GPAGE, MAPS);
+  document.getElementById("a2").href = intent(WRITE, MAPS);
+  document.getElementById("a3").href = intent(PLACE, MAPS);
+  document.getElementById("a4").href = intent(WRITE, GAPP);
+  document.getElementById("a5").href = intent(SEARCH, GAPP);
+
+  document.getElementById("i1").href = "comgooglemaps://?q=" + encodeURIComponent("하울솔루션 용산");
+  document.getElementById("i2").href = "google://search?q=" + encodeURIComponent("용산 하울솔루션");
+  document.getElementById("i3").href = GPAGE;
+
+  if (isAndroid) document.getElementById("ios").style.display = "none";
+  if (isIOS) document.getElementById("android").style.display = "none";
+})();
+</script>
+</body>
+</html>
