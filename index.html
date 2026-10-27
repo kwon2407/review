@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하울솔루션 구글 리뷰</title>
+<meta property="og:title" content="하울솔루션 구글 리뷰 남기기">
+<meta property="og:description" content="소중한 후기 한 줄이 큰 힘이 됩니다. 눌러서 바로 리뷰를 남겨 주세요.">
+<style>
+  :root { --bg:#f6f7f8; --card:#fff; --text:#1d2329; --sub:#5f6b76; --green:#1f9d55; --line:#e3e7eb; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  .wrap { max-width:420px; margin:0 auto; padding:48px 16px; text-align:center; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:32px 20px; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  p { color:var(--sub); font-size:15px; line-height:1.6; margin:0 0 24px; }
+  .stars { font-size:28px; color:#fbbc04; letter-spacing:4px; margin-bottom:12px; }
+  a.btn { display:block; padding:16px; border-radius:12px; font-size:16px; font-weight:700;
+          text-decoration:none; margin-top:10px; }
+  .primary { background:var(--green); color:#fff; }
+  .secondary { background:#fff; color:var(--text); border:1px solid var(--line); }
+  .hint { font-size:13px; color:var(--sub); margin-top:18px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="stars">★★★★★</div>
+    <h1>하울솔루션 구글 리뷰</h1>
+    <p id="msg">구글 지도 앱으로 이동하고 있어요.<br>자동으로 넘어가지 않으면 아래 버튼을 눌러 주세요.</p>
+    <a class="btn primary" id="appBtn" href="#">구글 지도 앱에서 리뷰 쓰기</a>
+    <a class="btn secondary" id="webBtn" href="#">인터넷 창에서 리뷰 쓰기</a>
+    <div class="hint" id="hint">구글 지도 앱에는 대부분 구글 로그인이 되어 있어<br>바로 리뷰를 남기실 수 있어요.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // 하울솔루션 구글 공식 리뷰 링크
+  var REVIEW = "https://g.page/r/CTeLUfhkhEYOEAI/review";
+  var PATH = REVIEW.replace(/^https?:\/\//, "");
+
+  var ua = navigator.userAgent || "";
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isKakao = /KAKAOTALK/i.test(ua);
+  var isOtherInApp = /NAVER|Instagram|FBAN|FBAV|Line\/|DaumApps|BAND/i.test(ua);
+
+  // 안드로이드: 구글 지도 앱을 직접 지정해서 열기, 앱이 없거나 못 열면 웹 리뷰창으로
+  var androidMaps = "intent://" + PATH +
+    "#Intent;scheme=https;package=com.google.android.apps.maps;" +
+    "S.browser_fallback_url=" + encodeURIComponent(REVIEW) + ";end";
+
+  var appBtn = document.getElementById("appBtn");
+  var webBtn = document.getElementById("webBtn");
+  var msg = document.getElementById("msg");
+  var hint = document.getElementById("hint");
+  webBtn.href = REVIEW;
+
+  function go(url) { setTimeout(function () { location.href = url; }, 300); }
+
+  if (isKakao) {
+    // 1단계: 카톡 브라우저 → 폰 기본 브라우저로 이 페이지를 다시 열기
+    var ext = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
+    appBtn.href = ext;
+    go(ext);
+  } else if (isAndroid) {
+    // 2단계(또는 QR로 바로 온 경우): 구글 지도 앱으로 보내기
+    appBtn.href = androidMaps;
+    go(androidMaps);
+  } else if (isIOS) {
+    // 아이폰은 자동 이동보다 '직접 누르기'가 앱으로 넘어갈 확률이 높아 버튼으로 안내
+    appBtn.href = REVIEW;
+    if (isOtherInApp) {
+      msg.innerHTML = "오른쪽 위(또는 아래) 메뉴에서<br><b>'Safari로 열기'</b>를 누른 뒤 버튼을 눌러 주세요.";
+    } else {
+      msg.innerHTML = "아래 버튼을 눌러 주세요.";
+    }
+    hint.innerHTML = "구글 지도 앱이 설치되어 있으면 앱에서 열려요.";
+  } else {
+    // PC 등
+    appBtn.style.display = "none";
+    msg.innerHTML = "리뷰 작성 화면으로 이동하고 있어요.";
+    go(REVIEW);
+  }
+})();
+</script>
+</body>
+</html>
