@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>하울솔루션 구글 리뷰</title>
+<!-- ▼▼ 아래 두 줄의 '깃허브아이디'를 본인 깃허브 아이디로 바꿔 주세요 ▼▼ -->
+<meta property="og:image" content="https://깃허브아이디.github.io/review/og-image.png">
+<meta property="og:url" content="https://깃허브아이디.github.io/review/">
+<!-- ▲▲ 여기까지 ▲▲ -->
+<meta property="og:type" content="website">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:title" content="하울솔루션 구글 리뷰 남기기">
 <meta property="og:description" content="소중한 후기 한 줄이 큰 힘이 됩니다. 눌러서 바로 리뷰를 남겨 주세요.">
 <style>
@@ -11,16 +18,19 @@
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--text);
          font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
-  .wrap { max-width:420px; margin:0 auto; padding:48px 16px; text-align:center; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:32px 20px; }
-  h1 { font-size:20px; margin:0 0 8px; }
-  p { color:var(--sub); font-size:15px; line-height:1.6; margin:0 0 24px; }
-  .stars { font-size:28px; color:#fbbc04; letter-spacing:4px; margin-bottom:12px; }
+  .wrap { max-width:420px; margin:0 auto; padding:40px 16px; text-align:center; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:28px 20px; }
+  h1 { font-size:20px; margin:0 0 16px; }
+  .stars { font-size:28px; color:#fbbc04; letter-spacing:4px; margin-bottom:10px; }
+  .guide { background:#f1f8f4; border-radius:12px; padding:16px; margin:0 0 20px; text-align:left;
+           font-size:15px; line-height:1.7; }
+  .guide b { color:var(--green); }
+  .guide ol { margin:6px 0 0; padding-left:20px; }
   a.btn { display:block; padding:16px; border-radius:12px; font-size:16px; font-weight:700;
           text-decoration:none; margin-top:10px; }
   .primary { background:var(--green); color:#fff; }
   .secondary { background:#fff; color:var(--text); border:1px solid var(--line); }
-  .hint { font-size:13px; color:var(--sub); margin-top:18px; line-height:1.6; }
+  .hint { font-size:13px; color:var(--sub); margin-top:16px; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -28,61 +38,66 @@
   <div class="card">
     <div class="stars">★★★★★</div>
     <h1>하울솔루션 구글 리뷰</h1>
-    <p id="msg">구글 지도 앱으로 이동하고 있어요.<br>자동으로 넘어가지 않으면 아래 버튼을 눌러 주세요.</p>
-    <a class="btn primary" id="appBtn" href="#">구글 지도 앱에서 리뷰 쓰기</a>
-    <a class="btn secondary" id="webBtn" href="#">인터넷 창에서 리뷰 쓰기</a>
-    <div class="hint" id="hint">구글 지도 앱에는 대부분 구글 로그인이 되어 있어<br>바로 리뷰를 남기실 수 있어요.</div>
+    <div class="guide">
+      잠시 후 <b>구글 지도 앱</b>이 열려요.
+      <ol>
+        <li>하울솔루션 화면에서 <b>'리뷰'</b> 탭을 누르고</li>
+        <li><b>'리뷰 작성'</b>을 눌러 별점과 후기를 남겨 주세요.</li>
+      </ol>
+    </div>
+    <a class="btn primary" id="appBtn" href="#">구글 지도 앱 열기</a>
+    <a class="btn secondary" id="webBtn" href="#">인터넷 창에서 바로 리뷰 쓰기</a>
+    <div class="hint" id="hint">자동으로 넘어가지 않으면 위 버튼을 눌러 주세요.</div>
   </div>
 </div>
 
 <script>
 (function () {
-  // 하울솔루션 구글 공식 리뷰 링크
-  var REVIEW = "https://g.page/r/CTeLUfhkhEYOEAI/review";
-  var PATH = REVIEW.replace(/^https?:\/\//, "");
+  var PLACE_ID = "ChIJFb9FxvmjfDURN4tR-GSERg4";
+  // 인터넷 창용 리뷰 작성 주소 (지도 앱이 없을 때 대비)
+  var WRITE = "https://search.google.com/local/writereview?placeid=" + PLACE_ID;
+  // 지도 앱이 받아 주는 장소 주소 (안드로이드 테스트에서 C 방식으로 확인됨)
+  var PLACE = "https://www.google.com/maps/search/?api=1&query=" +
+              encodeURIComponent("하울솔루션") + "&query_place_id=" + PLACE_ID;
 
   var ua = navigator.userAgent || "";
   var isAndroid = /Android/i.test(ua);
   var isIOS = /iPhone|iPad|iPod/i.test(ua);
   var isKakao = /KAKAOTALK/i.test(ua);
-  var isOtherInApp = /NAVER|Instagram|FBAN|FBAV|Line\/|DaumApps|BAND/i.test(ua);
 
-  // 안드로이드: 구글 지도 앱을 직접 지정해서 열기, 앱이 없거나 못 열면 웹 리뷰창으로
-  var androidMaps = "intent://" + PATH +
-    "#Intent;scheme=https;package=com.google.android.apps.maps;" +
-    "S.browser_fallback_url=" + encodeURIComponent(REVIEW) + ";end";
+  var u = new URL(PLACE);
+  // 지도 앱으로 장소 열기, 지도 앱이 없으면 인터넷 창 리뷰 작성 화면으로
+  var androidMaps = "intent://" + u.host + u.pathname + u.search +
+    "#Intent;scheme=https;action=android.intent.action.VIEW;package=com.google.android.apps.maps;" +
+    "S.browser_fallback_url=" + encodeURIComponent(WRITE) + ";end";
 
   var appBtn = document.getElementById("appBtn");
   var webBtn = document.getElementById("webBtn");
-  var msg = document.getElementById("msg");
   var hint = document.getElementById("hint");
-  webBtn.href = REVIEW;
+  webBtn.href = WRITE;
 
-  function go(url) { setTimeout(function () { location.href = url; }, 300); }
+  // 안내 문구를 읽을 시간을 주고 이동
+  function go(url, ms) { setTimeout(function () { location.href = url; }, ms); }
 
   if (isKakao) {
     // 1단계: 카톡 브라우저 → 폰 기본 브라우저로 이 페이지를 다시 열기
     var ext = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
     appBtn.href = ext;
-    go(ext);
+    go(ext, 300);
   } else if (isAndroid) {
-    // 2단계(또는 QR로 바로 온 경우): 구글 지도 앱으로 보내기
+    // 2단계(또는 QR로 바로 온 경우): 구글 지도 앱으로 하울솔루션 장소 열기
     appBtn.href = androidMaps;
-    go(androidMaps);
+    go(androidMaps, 1800);
   } else if (isIOS) {
-    // 아이폰은 자동 이동보다 '직접 누르기'가 앱으로 넘어갈 확률이 높아 버튼으로 안내
-    appBtn.href = REVIEW;
-    if (isOtherInApp) {
-      msg.innerHTML = "오른쪽 위(또는 아래) 메뉴에서<br><b>'Safari로 열기'</b>를 누른 뒤 버튼을 눌러 주세요.";
-    } else {
-      msg.innerHTML = "아래 버튼을 눌러 주세요.";
-    }
-    hint.innerHTML = "구글 지도 앱이 설치되어 있으면 앱에서 열려요.";
+    // 아이폰: 직접 눌러야 지도 앱으로 넘어갈 확률이 높아 자동 이동 대신 버튼 안내
+    appBtn.href = PLACE;
+    hint.innerHTML = "구글 지도 앱이 없으면 인터넷 창에서 바로 리뷰를 쓰실 수 있어요.";
   } else {
     // PC 등
+    document.querySelector(".guide").style.display = "none";
     appBtn.style.display = "none";
-    msg.innerHTML = "리뷰 작성 화면으로 이동하고 있어요.";
-    go(REVIEW);
+    hint.innerHTML = "리뷰 작성 화면으로 이동하고 있어요.";
+    go(WRITE, 300);
   }
 })();
 </script>
